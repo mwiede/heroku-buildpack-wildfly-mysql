@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# bin/compile <build-dir> <cache-dir> <env-dir>
+
+# fail fast
+set -e
+
+# versions
+MYSQL_VERSION="5.1.29"
+MYSQL_SHA1="91798a4463050f61598122fe7fdc24aa196dfc0c"
+
+BP_DIR=$(cd $(dirname $0)/..; pwd) # absolute path
+BIN_DIR=$BP_DIR/bin
+
+# parse args
+BUILD_DIR=$1
+CACHE_DIR=$2
+ENV_DIR=$3
+
+cd $BUILD_DIR
+
+: "${JBOSS_HOME:?You need to install Wildfly first. JBOSS_HOME environment variable not found.}"
+
+echo -n "-----> Downloading mysql connector ${MYSQL_VERSION}... "
+curl -O http://central.maven.org/maven2/mysql/mysql-connector-java/${MYSQL_VERSION}/mysql-connector-java-${MYSQL_VERSION}.jar
+echo -n "-----> downloaded"
+sha1sum mysql-connector-java-${MYSQL_VERSION}.jar | grep $MYSQL_SHA1 > /dev/null 2>&1
+echo -n "-----> verified"
+
+
+# 1) startup
+echo -n "-----> Starting WildFly ... "
+$JBOSS_HOME/bin/standalone.sh -b=0.0.0.0 -Djboss.http.port=\$PORT
+
+# 2) create mysql module
+echo -n "-----> create mysql module ... "
+$JBOSS_HOME/bin/jboss-cli.sh --connect --command="module add --name=com.mysql.driver --resources=$BUILD_DIR/mysql-connector-java-5.1.29.jar --dependencies=javax.api,javax.transaction.api"
+
+# 3) install driver
+echo -n "-----> install JDBC driver ... "
+$JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=datasources/jdbc-driver=mysql:add(driver-name=mysql,driver-module-name=com.mysql.driver,driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource)"
+
+$JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=datasources:installed-drivers-list"
+
+# 4) shutdown
+echo -n "-----> shutdown WildFly ... "
+$JBOSS_HOME/bin/jboss-cli.sh --connect command=:shutdown
+
+echo -n "-----> done"
