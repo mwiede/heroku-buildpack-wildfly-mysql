@@ -18,7 +18,7 @@ ENV_DIR=$3
 
 cd $BUILD_DIR
 
-bash $BUILD_DIR/.profile.d/jboss.sh
+JBOSS_HOME=$BUILD_DIR/.jboss/wildfly-10.1.0.Final
 
 : "${JBOSS_HOME:?You need to install Wildfly first. JBOSS_HOME environment variable not found.}"
 
