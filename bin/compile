@@ -26,14 +26,13 @@ echo -n "-----> downloaded"
 sha1sum mysql-connector-java-${MYSQL_VERSION}.jar | grep $MYSQL_SHA1 > /dev/null 2>&1
 echo -n "-----> verified"
 
-
 # 1) startup
 echo -n "-----> Starting WildFly ... "
-$JBOSS_HOME/bin/standalone.sh -b=0.0.0.0 -Djboss.http.port=\$PORT
+$JBOSS_HOME/bin/standalone.sh -b=0.0.0.0 -Djboss.http.port=\$PORT --admin-only &
 
 # 2) create mysql module
 echo -n "-----> create mysql module ... "
-$JBOSS_HOME/bin/jboss-cli.sh --connect --command="module add --name=com.mysql.driver --resources=$BUILD_DIR/mysql-connector-java-5.1.29.jar --dependencies=javax.api,javax.transaction.api"
+$JBOSS_HOME/bin/jboss-cli.sh --connect --command="module add --name=com.mysql.driver --resources=$BUILD_DIR/mysql-connector-java-MYSQL_VERSION.jar --dependencies=javax.api,javax.transaction.api"
 
 # 3) install driver
 echo -n "-----> install JDBC driver ... "
