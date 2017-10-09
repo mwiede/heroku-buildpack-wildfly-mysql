@@ -18,6 +18,8 @@ ENV_DIR=$3
 
 cd $BUILD_DIR
 
+bash $HOME/.profile.d/jboss.sh
+
 : "${JBOSS_HOME:?You need to install Wildfly first. JBOSS_HOME environment variable not found.}"
 
 echo -n "-----> Downloading mysql connector ${MYSQL_VERSION}... "
