@@ -32,6 +32,14 @@ echo -n "-----> verified"
 echo -n "-----> Starting WildFly ... "
 $JBOSS_HOME/bin/standalone.sh -b=0.0.0.0 -Djboss.http.port=\$PORT --admin-only &
 
+WILDFLY_RUNNING=1
+
+until [ $WILDFLY_RUNNING -eq 0 ]; do
+	$JBOSS_HOME/bin/jboss-cli.sh --connect --command=":read-attribute(name=server-state)"
+	WILDFLY_RUNNING=$?
+	sleep 3
+done	
+
 # 2) create mysql module
 echo -n "-----> create mysql module ... "
 $JBOSS_HOME/bin/jboss-cli.sh --connect --command="module add --name=com.mysql.driver --resources=$BUILD_DIR/mysql-connector-java-MYSQL_VERSION.jar --dependencies=javax.api,javax.transaction.api"
