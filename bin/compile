@@ -39,7 +39,7 @@ done
 
 # 2) create mysql module
 echo "-----> create mysql module ... "
-$JBOSS_HOME/bin/jboss-cli.sh --connect --command="module add --name=com.mysql.driver --resources=$BUILD_DIR/mysql-connector-java-MYSQL_VERSION.jar --dependencies=javax.api,javax.transaction.api"
+$JBOSS_HOME/bin/jboss-cli.sh --connect --command="module add --name=com.mysql.driver --resources=$BUILD_DIR/mysql-connector-java-$MYSQL_VERSION.jar --dependencies=javax.api,javax.transaction.api"
 
 # 3) install driver
 echo "-----> install JDBC driver ... "
